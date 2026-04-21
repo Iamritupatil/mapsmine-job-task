@@ -44,94 +44,8 @@ const formatStatus = (status) => {
 // --- Components ---
 
 const VideoBackground = () => {
-  const videoRef = useRef(null);
-  const opacityRef = useRef(0);
-  const animFrameRef = useRef(null);
-  const fadingOutRef = useRef(false);
-
-  // Custom JS requestAnimationFrame fade system (no CSS transitions)
-  const fade = (targetOpacity, duration) => {
-    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-
-    const startOpacity = opacityRef.current;
-    const startTime = performance.now();
-
-    const animate = (time) => {
-      const elapsed = time - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const currentOpacity = startOpacity + (targetOpacity - startOpacity) * progress;
-
-      opacityRef.current = currentOpacity;
-      if (videoRef.current) {
-        videoRef.current.style.opacity = currentOpacity;
-      }
-
-      if (progress < 1) {
-        animFrameRef.current = requestAnimationFrame(animate);
-      }
-    };
-
-    animFrameRef.current = requestAnimationFrame(animate);
-  };
-
-  const handleTimeUpdate = () => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    // Trigger fade out 0.55s before the end
-    if (video.duration - video.currentTime <= 0.55 && !fadingOutRef.current) {
-      fadingOutRef.current = true;
-      fade(0, 250);
-    }
-  };
-
-  const handleEnded = () => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    // Hard reset opacity to 0 just in case frame dropped
-    video.style.opacity = 0;
-    opacityRef.current = 0;
-
-    setTimeout(() => {
-      video.currentTime = 0;
-      fadingOutRef.current = false;
-      video.play().catch((e) => console.error('Playback failed', e));
-      fade(1, 250);
-    }, 100);
-  };
-
-  const handleLoadedData = () => {
-    fadingOutRef.current = false;
-    fade(1, 250);
-  };
-
-  useEffect(() => {
-    const video = videoRef.current;
-    // Catch cases where loadeddata fired before hydration
-    if (video && video.readyState >= 3) {
-      handleLoadedData();
-    }
-
-    return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    };
-  }, []);
-
   return (
-    <div className="absolute inset-0 z-0 bg-black overflow-hidden pointer-events-none">
-      <video
-        ref={videoRef}
-        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260403_050628_c4e32401-fab4-4a27-b7a8-6e9291cd5959.mp4"
-        className="absolute left-1/2 top-0 -translate-x-1/2 w-[115%] h-[115%] max-w-none object-cover object-top transition-none"
-        muted
-        playsInline
-        onTimeUpdate={handleTimeUpdate}
-        onEnded={handleEnded}
-        onLoadedData={handleLoadedData}
-        style={{ opacity: 0 }}
-      />
-    </div>
+    <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 pointer-events-none" />
   );
 };
 
@@ -372,6 +286,7 @@ export default function App() {
 
     let isCancelled = false;
     let intervalId = null;
+    let consecutiveErrors = 0;
 
     const pollStatus = async () => {
       try {
@@ -380,6 +295,7 @@ export default function App() {
           throw new Error(`Status check failed with ${response.status}`);
         }
 
+        consecutiveErrors = 0;
         const data = await response.json();
         if (isCancelled) return;
 
@@ -405,11 +321,14 @@ export default function App() {
         }
       } catch (error) {
         if (isCancelled) return;
-        setScrapeStatus('Failed');
-        setLoading(false);
-        setDownloadReady(false);
-        setErrorMessage(error?.message || 'Failed while polling scrape status.');
-        if (intervalId) clearInterval(intervalId);
+        consecutiveErrors += 1;
+        if (consecutiveErrors >= 3) {
+          setScrapeStatus('Failed');
+          setLoading(false);
+          setDownloadReady(false);
+          setErrorMessage(error?.message || 'Failed while polling scrape status.');
+          if (intervalId) clearInterval(intervalId);
+        }
       }
     };
 

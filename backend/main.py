@@ -51,7 +51,7 @@ class ScrapeRequest(BaseModel):
     query: str = Field(min_length=2)
     limit: int = Field(default=50, ge=1, le=500)
     headless: bool = True
-    workers: int = Field(default=1, ge=1, le=1)
+    workers: int = Field(default=1, ge=1, le=10)
     format: str = Field(default="xlsx", pattern="^(xlsx|csv)$")
 
 

@@ -403,7 +403,7 @@ class GoogleMapsScraper:
         full_address = query_selector_any_text(self.page, [
             'button[data-item-id="address"]',
             'button[aria-label*="Address"]',
-            'div[role="main"] button:has-text("Dubai")',
+            'button[aria-label*="address"]',
         ])
 
         phone_number = query_selector_any_text(self.page, [
