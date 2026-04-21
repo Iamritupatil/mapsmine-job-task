@@ -1,0 +1,6 @@
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+playwright==1.53.0
+pandas==2.2.3
+openpyxl==3.1.5
+pydantic==2.11.4
