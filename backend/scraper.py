@@ -99,11 +99,22 @@ class GoogleMapsScraper:
         self.playwright = sync_playwright().start()
         args = [
             "--disable-blink-features=AutomationControlled",
-            "--start-maximized",
             "--disable-dev-shm-usage",
             "--no-sandbox",
             "--disable-setuid-sandbox",
             "--disable-gpu",
+            "--single-process",
+            "--no-zygote",
+            "--disable-extensions",
+            "--disable-background-networking",
+            "--disable-sync",
+            "--disable-translate",
+            "--disable-default-apps",
+            "--disable-background-timer-throttling",
+            "--disable-renderer-backgrounding",
+            "--mute-audio",
+            "--no-first-run",
+            "--js-flags=--max-old-space-size=128",
         ]
 
         try:
@@ -118,8 +129,8 @@ class GoogleMapsScraper:
                 "Could not launch Chromium. Run: playwright install chromium"
             ) from exc
 
-        viewport_w = random.randint(1440, 1600)
-        viewport_h = random.randint(860, 960)
+        viewport_w = random.randint(1280, 1366)
+        viewport_h = random.randint(768, 860)
         proxy_config = {"server": self.proxy} if self.proxy else None
 
         self.context = browser.new_context(
