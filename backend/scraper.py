@@ -302,7 +302,7 @@ class GoogleMapsScraper:
 
         retry(_go, attempts=3)
 
-    def extract_top_reviews(self) -> tuple[str, str, str]:
+    def extract_top_reviews(self) -> tuple:
         if not self.page:
             return "", "", ""
 
@@ -506,7 +506,7 @@ class GoogleMapsScraper:
                 self.rows.append(row)
                 if on_row:
                     on_row()
-                self.logger.info("Scraped %s/%s: %s", len(self.rows), len(urls), row.business_name)
+                self.logger.info("Scraped %s/%s: %s", len(self.rows), self.limit, row.business_name)
             except Exception as exc:  # noqa: BLE001
                 self.logger.exception("Failed to extract %s due to %s", url, exc)
             finally:

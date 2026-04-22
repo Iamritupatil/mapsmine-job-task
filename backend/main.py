@@ -4,6 +4,7 @@ import os
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 from threading import Lock
@@ -25,6 +26,12 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 logger = setup_logger()
 executor = ThreadPoolExecutor(max_workers=2)
 job_lock = Lock()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    executor.shutdown(wait=False)
 
 
 @dataclass
@@ -51,11 +58,11 @@ class ScrapeRequest(BaseModel):
     query: str = Field(min_length=2)
     limit: int = Field(default=50, ge=1, le=500)
     headless: bool = True
-    workers: int = Field(default=1, ge=1, le=10)
+    workers: int = Field(default=1, ge=1, le=5)
     format: str = Field(default="xlsx", pattern="^(xlsx|csv)$")
 
 
-app = FastAPI(title="MapsMine Scraper API", version="1.0.0")
+app = FastAPI(title="MapsMine Scraper API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -175,6 +182,8 @@ def download_scrape_result(job_id: str) -> FileResponse:
         raise HTTPException(status_code=400, detail="Result is not ready")
 
     file_path = BASE_DIR / job.result_file
+    if not str(file_path.resolve()).startswith(str(OUTPUT_DIR.resolve())):
+        raise HTTPException(status_code=400, detail="Invalid file path")
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Result file missing")
 

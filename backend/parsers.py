@@ -11,7 +11,7 @@ def parse_rating_and_reviews(text: str) -> tuple[float | str, int | str]:
     if not text:
         return "", ""
 
-    rating_match = re.search(r"(\d(?:\.\d)?)", text)
+    rating_match = re.search(r"(\d+(?:\.\d)?)\s", text)
     reviews_match = re.search(r"(\d[\d,]*)\s+reviews?", text, flags=re.IGNORECASE)
 
     rating: float | str = ""
@@ -63,6 +63,22 @@ def normalize_hours(hours_items: Iterable[str]) -> str:
     lines = [clean_text(item) for item in hours_items if clean_text(item)]
     if not lines:
         return ""
+
+    days = {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"}
+    result: dict[str, str] = {}
+    pending_day: str | None = None
+
+    for line in lines:
+        if line.lower() in days:
+            pending_day = line
+        elif pending_day is not None:
+            result[pending_day] = line
+            pending_day = None
+        else:
+            result[line] = ""
+
+    if result:
+        return json.dumps(result, ensure_ascii=True)
     return json.dumps(lines, ensure_ascii=True)
 
 

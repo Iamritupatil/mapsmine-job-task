@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+@theme {
+  --font-fustat: 'Fustat', sans-serif;
+  --font-schibsted: 'Schibsted Grotesk', sans-serif;
+  --font-noto: 'Noto Sans', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+}

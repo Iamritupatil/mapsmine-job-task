@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
-from typing import Dict
+from dataclasses import dataclass
 
 
 @dataclass
@@ -25,10 +24,6 @@ class BusinessRow:
     top_review_2: str = ""
     top_review_3: str = ""
     google_maps_url: str = ""
-
-    def to_dict(self) -> Dict[str, object]:
-        return asdict(self)
-
 
 OUTPUT_COLUMNS = [
     "business_name",
