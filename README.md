@@ -178,21 +178,4 @@ Import the repo on Vercel. `vercel.json` at the root already configures it to bu
 Connect the repo, set the root directory to `backend/`. Railway detects the `Dockerfile` and builds it automatically (installs Chrome + Python deps).
 
 ---
-
-## How I Used Claude / AI During Development
-
-Claude (Claude Code) was my primary development assistant throughout this project. Here's specifically how:
-
-- **Architecture decisions** — I described the requirements and Claude recommended splitting the scraper into `scraper.py`, `parsers.py`, `utils.py`, and `models.py` rather than a monolithic script. This made each concern testable in isolation.
-
-- **Selector design and fallbacks** — Google Maps has no stable CSS class names. Claude helped design multi-candidate selector lists (e.g. trying 4–5 selectors per field in priority order) so that if Google changes one selector, the others still catch the data.
-
-- **Parser logic** — Claude wrote the regex-based parsers for extracting coordinates from Maps URLs (`@lat,lng` and `!3d...!4d...` patterns), Plus Codes, place IDs from both URL and raw HTML, and rating/review count parsing from messy mixed text.
-
-- **Parallel worker architecture** — Claude designed the `ThreadPoolExecutor` pattern in `GoogleMapsScraper.run()` where the collector browser does the search and scroll, then closes itself before spawning N worker sub-scrapers that each get a chunk of URLs. This avoids race conditions on shared browser state.
-
-- **Deployment config** — Claude generated the `Dockerfile` (Chrome install via apt + Playwright deps), `vercel.json`, and `.gitignore` based on the project structure.
-
-- **Debugging edge cases** — I described issues like consent popups in UAE regions and Windows event loop errors with Playwright. Claude identified the root causes and added `asyncio.WindowsProactorEventLoopPolicy` and frame-level consent button scanning as fixes.
-
-The workflow was conversational: I'd describe what I needed or paste an error, Claude would generate the code or explain the fix, and I'd test and iterate. Roughly 70–80% of the codebase was written or significantly shaped by Claude, with my role being architecture review, testing, and integration decisions.
+e or explain the fix, and I'd test and iterate. Roughly 70–80% of the codebase was written or significantly shaped by Claude, with my role being architecture review, testing, and integration decisions.
