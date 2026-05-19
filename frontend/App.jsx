@@ -45,7 +45,14 @@ const formatStatus = (status) => {
 
 const VideoBackground = () => {
   return (
-    <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 pointer-events-none" />
+    <video
+      className="absolute inset-0 object-cover w-full h-full z-0 pointer-events-none"
+      src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260403_050628_c4e32401-fab4-4a27-b7a8-6e9291cd5959.mp4"
+      autoPlay
+      loop
+      muted
+      playsInline
+    />
   );
 };
 
